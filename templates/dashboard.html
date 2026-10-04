@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-header" style="margin-bottom: 2rem; margin-top: 1.5rem;">
+    <h1 style="font-size: 2.25rem; font-weight: 800; color: var(--dark-color); letter-spacing: -0.5px;">Welcome back, {{ name }}!</h1>
+    <p style="color: var(--text-muted); font-size: 1.1rem;">Prepare, simulate, and analyze your technical and HR interview performance with AI/ML evaluation.</p>
+</div>
+
+<!-- Quick Start Banner -->
+<div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)); color: white; border: none; box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+        <div>
+            <h2 style="font-size: 1.75rem; margin-bottom: 0.5rem; font-weight: 800;">Ready for your next mock interview?</h2>
+            <p style="opacity: 0.95; font-size: 1.05rem;">Practice HR, Java, Data Structures, or Machine Learning across Easy, Medium, and Hard challenges.</p>
+        </div>
+        <a href="{{ url_for('interview.setup') }}" class="btn" style="background: white; color: var(--primary-color); font-weight: 700; font-size: 1.1rem; padding: 0.85rem 1.75rem; border-radius: 0.5rem;">
+            + Start New Interview
+        </a>
+    </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="dashboard-grid" style="margin-bottom: 2.5rem;">
+    <div class="stat-card">
+        <h3>{{ total_interviews }}</h3>
+        <p style="font-weight: 600; opacity: 0.9;">Completed Sessions</p>
+    </div>
+    <div class="stat-card" style="background: linear-gradient(135deg, #059669, #10B981); box-shadow: 0 8px 15px -3px rgba(16, 185, 129, 0.3);">
+        <h3>{{ avg_score }}%</h3>
+        <p style="font-weight: 600; opacity: 0.9;">Average Evaluation Score</p>
+    </div>
+    <div class="stat-card" style="background: linear-gradient(135deg, #4B5563, #374151); box-shadow: 0 8px 15px -3px rgba(55, 65, 81, 0.3);">
+        <h3 style="font-size: 2.1rem; padding-top: 0.4rem;">{{ top_category }}</h3>
+        <p style="font-weight: 600; opacity: 0.9;">Top Category Focus</p>
+    </div>
+</div>
+
+<!-- Recent Sessions List -->
+<div class="card card-elevated">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid #E5E7EB; padding-bottom: 1rem;">
+        <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--dark-color);">Recent Interview Sessions</h2>
+        <span style="font-size: 0.85rem; color: var(--text-muted);">Stored persistently in SQLite</span>
+    </div>
+    
+    {% if recent_sessions %}
+        <div style="display: flex; flex-direction: column;">
+            {% for s in recent_sessions %}
+            <div class="session-item">
+                <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                        <span class="badge badge-category">{{ s.category }}</span>
+                        <span class="badge" style="background: #F3F4F6; color: #4B5563;">{{ s.difficulty }}</span>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">{{ s.total_questions }} Question{% if s.total_questions != 1 %}s{% endif %}</span>
+                    </div>
+                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.35rem;">
+                        {{ s.started_at.strftime('%b %d, %Y • %I:%M %p') }}
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    {% if s.status == 'Completed' %}
+                        {% if s.overall_score is not none %}
+                            {% set skill = s.skill_level or 'Needs Improvement' %}
+                            <span class="badge {% if skill == 'Strong' %}badge-strong{% elif skill == 'Good' %}badge-good{% else %}badge-needs-improvement{% endif %}">
+                                {{ s.overall_score }}% • {{ skill }}
+                            </span>
+                        {% endif %}
+                        <a href="{{ url_for('interview.summary', session_id=s.id) }}" class="btn btn-outline btn-sm">
+                            View Results →
+                        </a>
+                    {% else %}
+                        <span class="badge" style="background: #FEF3C7; color: #92400E;">In Progress</span>
+                        <a href="{{ url_for('interview.start_interview') }}" class="btn btn-primary btn-sm">Resume</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 3rem 1rem;">
+            <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 1.5rem;">You haven't completed any interview sessions yet.</p>
+            <a href="{{ url_for('interview.setup') }}" class="btn btn-primary">Start Your First Interview</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="hero">
+    <h1>Practice. Improve. Succeed.</h1>
+    <p>MockMind is an AI & Machine Learning powered interview simulator designed for students to master technical and HR interviews with confidence.</p>
+    
+    <div style="margin-top: 3rem; display: flex; justify-content: center; gap: 1rem;">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary" style="font-size: 1.25rem; padding: 1rem 2rem;">Start Free Trial</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-outline" style="font-size: 1.25rem; padding: 1rem 2rem;">Login</a>
+    </div>
+
+    <div class="dashboard-grid" style="margin-top: 5rem; text-align: left;">
+        <div class="card">
+            <h3 style="color: var(--primary-color); margin-bottom: 1rem;">AI-Powered</h3>
+            <p>Simulate real-world interviews with intelligent question selection tailored to your category and difficulty.</p>
+        </div>
+        <div class="card">
+            <h3 style="color: var(--secondary-color); margin-bottom: 1rem;">Multiple Categories</h3>
+            <p>Practice HR, Java, Data Structures, and Machine Learning interviews all in one place.</p>
+        </div>
+        <div class="card">
+            <h3 style="color: #F59E0B; margin-bottom: 1rem;">Future Ready</h3>
+            <p>Built for advanced Machine Learning integration to analyze your confidence and knowledge gaps.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 5rem auto; text-align: center;">
+    <div class="card" style="padding: 4rem 2rem;">
+        <div style="width: 80px; height: 80px; background: #DEF7EC; color: #03543F; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem auto;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        </div>
+        
+        <h1 style="color: var(--dark-color); margin-bottom: 1rem;">Interview Completed Successfully!</h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 3rem;">
+            Great job completing your mock interview in <strong>{{ session.category }}</strong>.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem; max-width: 320px; margin: 0 auto;">
+            <a href="{{ url_for('interview.summary', session_id=session.id) }}" class="btn btn-primary">View Results & Performance Analysis</a>
+            <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-outline">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 2rem auto;">
+    <!-- Top Action Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="color: var(--dark-color); font-size: 2rem; font-weight: 800; letter-spacing: -0.5px;">Interview Results Dashboard</h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.25rem;">Comprehensive AI/ML-driven performance evaluation and actionable feedback.</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            <a href="{{ url_for('interview.setup') }}" class="btn btn-primary btn-sm">+ New Interview</a>
+            <button onclick="window.print()" class="btn btn-outline btn-sm no-print">Print / Save PDF</button>
+            <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-muted btn-sm">Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Executive Overview Card -->
+    <div class="card card-elevated" style="margin-bottom: 2rem; border-top: 4px solid var(--primary-color);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                <span class="badge badge-category" style="font-size: 1rem; padding: 0.5rem 1rem;">{{ session.category }}</span>
+                <span class="badge" style="background: #F3F4F6; color: #374151; font-size: 0.95rem; padding: 0.5rem 0.85rem;">{{ session.difficulty }} Level</span>
+                <span style="color: var(--text-muted); font-size: 0.9rem;">{{ session.completed_at.strftime('%B %d, %Y at %I:%M %p') if session.completed_at else 'Recent' }}</span>
+            </div>
+            <div>
+                {% set skill = performance.skill_level %}
+                <span class="badge {% if skill == 'Strong' %}badge-strong{% elif skill == 'Good' %}badge-good{% else %}badge-needs-improvement{% endif %}" style="font-size: 1.1rem; padding: 0.5rem 1.25rem;">
+                    Skill Level: {{ skill }}
+                </span>
+            </div>
+        </div>
+
+        <!-- 5 Core Score Metrics -->
+        <div class="scorecard-grid">
+            <!-- Overall Score -->
+            <div class="score-metric-box" style="background: linear-gradient(135deg, #EEF2FF, #E0E7FF); border-color: #C7D2FE;">
+                <div class="score-metric-title" style="color: var(--primary-color);">Overall Score</div>
+                <div class="score-metric-value" style="color: var(--primary-color);">{{ performance.overall_score }}%</div>
+                <div class="progress-track" style="background: #C7D2FE;">
+                    <div class="progress-fill progress-fill-primary" style="width: {{ performance.overall_score }}%;"></div>
+                </div>
+            </div>
+
+            <!-- Technical Score -->
+            <div class="score-metric-box">
+                <div class="score-metric-title">Technical Score</div>
+                <div class="score-metric-value">{{ performance.avg_technical_score }}%</div>
+                <div class="progress-track">
+                    <div class="progress-fill {% if performance.avg_technical_score >= 70 %}progress-fill-success{% elif performance.avg_technical_score >= 50 %}progress-fill-primary{% else %}progress-fill-warning{% endif %}" style="width: {{ performance.avg_technical_score }}%;"></div>
+                </div>
+            </div>
+
+            <!-- Relevance Score -->
+            <div class="score-metric-box">
+                <div class="score-metric-title">Answer Relevance</div>
+                <div class="score-metric-value">{{ performance.avg_relevance_score }}%</div>
+                <div class="progress-track">
+                    <div class="progress-fill {% if performance.avg_relevance_score >= 70 %}progress-fill-success{% elif performance.avg_relevance_score >= 50 %}progress-fill-primary{% else %}progress-fill-warning{% endif %}" style="width: {{ performance.avg_relevance_score }}%;"></div>
+                </div>
+            </div>
+
+            <!-- Concept Coverage -->
+            <div class="score-metric-box">
+                <div class="score-metric-title">Concept Coverage</div>
+                <div class="score-metric-value">{{ performance.avg_concept_coverage }}%</div>
+                <div class="progress-track">
+                    <div class="progress-fill {% if performance.avg_concept_coverage >= 70 %}progress-fill-success{% elif performance.avg_concept_coverage >= 50 %}progress-fill-primary{% else %}progress-fill-warning{% endif %}" style="width: {{ performance.avg_concept_coverage }}%;"></div>
+                </div>
+            </div>
+
+            <!-- Communication & Confidence -->
+            <div class="score-metric-box">
+                <div class="score-metric-title">Linguistic Clarity</div>
+                <div class="score-metric-value">{{ performance.avg_communication_score }}%</div>
+                <div class="progress-track">
+                    <div class="progress-fill progress-fill-success" style="width: {{ performance.avg_communication_score }}%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evaluation Explanation & Linguistic Disclaimer Banner -->
+        <div class="disclaimer-box" style="margin-top: 1rem;">
+            <strong>Estimated Evaluation Methodology:</strong>
+            Scores are computed locally via TF-IDF semantic N-gram cosine similarity, concept/keyword matching, and explainable linguistic indicators (filler words, uncertainty markers, and sentence structure).
+            <em>Notice: Text-based communication metrics evaluate linguistic clarity and writing structure; they do not measure vocal tone or psychological confidence.</em>
+        </div>
+    </div>
+
+    <!-- Personalized Feedback & Coaching Section -->
+    <h2 style="font-size: 1.5rem; color: var(--dark-color); margin-bottom: 1.25rem;">Personalized Feedback & Strategy</h2>
+    <div class="feedback-grid">
+        <!-- Strengths Card -->
+        <div class="feedback-card" style="border-left: 4px solid #10B981;">
+            <h3 style="color: #065F46;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Key Strengths Identified
+            </h3>
+            <ul class="feedback-list strengths-list">
+                {% for s in feedback.strengths %}
+                    <li>{{ s }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Areas for Improvement Card -->
+        <div class="feedback-card" style="border-left: 4px solid #F59E0B;">
+            <h3 style="color: #92400E;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                Targeted Improvement Areas
+            </h3>
+            <ul class="feedback-list weaknesses-list">
+                {% for w in feedback.weaknesses %}
+                    <li>{{ w }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Actionable Coaching & Recommended Topics -->
+    <div class="card" style="margin-bottom: 2.5rem; background: #F8FAFC;">
+        <h3 style="color: var(--dark-color); font-size: 1.15rem; margin-bottom: 1rem;">Actionable Improvement Guidelines</h3>
+        <ul class="feedback-list" style="margin-bottom: 1.5rem;">
+            {% for tip in feedback.improvement_suggestions %}
+                <li><strong>Rule Recommendation:</strong> {{ tip }}</li>
+            {% endfor %}
+            {% for coach in feedback.category_coaching %}
+                <li><strong>{{ session.category }} Best Practice:</strong> {{ coach }}</li>
+            {% endfor %}
+        </ul>
+
+        {% if feedback.recommended_topics %}
+        <div style="border-top: 1px dashed #CBD5E1; padding-top: 1rem; display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <span style="font-weight: 700; font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase;">Recommended Focus Topics:</span>
+            {% for topic in feedback.recommended_topics %}
+                <span class="badge" style="background: #E0E7FF; color: var(--primary-color); font-weight: 600;">{{ topic }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Question-by-Question Deep Dive -->
+    <h2 style="font-size: 1.5rem; color: var(--dark-color); margin-bottom: 1.25rem;">Detailed Question Analysis</h2>
+
+    {% for answer in answers %}
+    {% set q = answer.question %}
+    <div class="question-result-card">
+        <!-- Question Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+            <div>
+                <span class="badge badge-category" style="font-size: 0.8rem;">Q{{ loop.index }} • {{ q.topic or q.category }}</span>
+                <span class="badge" style="background: #F3F4F6; color: #4B5563; font-size: 0.8rem; margin-left: 0.25rem;">{{ q.difficulty }}</span>
+            </div>
+            <!-- Question Mini Scores -->
+            <div style="display: flex; gap: 0.75rem; align-items: center; font-size: 0.85rem; font-weight: 600;">
+                <span style="color: var(--primary-color);">Technical: {{ answer.technical_score or 0 }}%</span>
+                <span style="color: #6B7280;">|</span>
+                <span style="color: #059669;">Relevance: {{ answer.relevance_score or 0 }}%</span>
+                <span style="color: #6B7280;">|</span>
+                <span style="color: #7C3AED;">Communication: {{ answer.communication_score or 0 }}%</span>
+            </div>
+        </div>
+
+        <h4 style="font-size: 1.15rem; color: var(--dark-color); margin-bottom: 1rem;">{{ q.question }}</h4>
+
+        <!-- Answers Side-by-Side / Stacked Comparison -->
+        <div class="answer-comparison-box">
+            <!-- Candidate Answer -->
+            <div class="answer-box">
+                <div style="font-weight: 700; font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem;">
+                    Your Submitted Answer:
+                </div>
+                <p style="white-space: pre-wrap; font-style: italic; color: var(--text-main);">{{ answer.user_answer }}</p>
+            </div>
+
+            <!-- Ideal Reference Answer -->
+            <div class="answer-box answer-box-ideal">
+                <div style="font-weight: 700; font-size: 0.8rem; text-transform: uppercase; color: #15803D; margin-bottom: 0.5rem;">
+                    Ideal Reference Answer:
+                </div>
+                <p style="white-space: pre-wrap;">{{ q.ideal_answer }}</p>
+            </div>
+        </div>
+
+        <!-- Concept Coverage Badges -->
+        <div style="margin-top: 1rem; padding: 0.85rem; background: #F8FAFC; border-radius: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+            {% set covered = answer.get_covered_concepts() %}
+            {% set missing = answer.get_missing_concepts() %}
+            
+            {% if covered %}
+            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem;">
+                <span style="font-size: 0.8rem; font-weight: 700; color: #065F46; text-transform: uppercase; margin-right: 0.25rem;">Covered Concepts:</span>
+                {% for c in covered %}
+                    <span class="badge badge-covered">✓ {{ c }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if missing %}
+            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem;">
+                <span style="font-size: 0.8rem; font-weight: 700; color: #92400E; text-transform: uppercase; margin-right: 0.25rem;">Missing Concepts:</span>
+                {% for m in missing %}
+                    <span class="badge badge-missing">! {{ m }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Question Specific Constructive Feedback -->
+        {% if answer.feedback %}
+        <div style="margin-top: 0.75rem; padding: 0.75rem 1rem; background: #EEF2FF; border-left: 3px solid var(--primary-color); border-radius: 0 0.35rem 0.35rem 0; font-size: 0.9rem; color: #312E81;">
+            <strong>Evaluation Insight:</strong> {{ answer.feedback }}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <!-- Bottom Navigation -->
+    <div style="margin-top: 3rem; text-align: center; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+        <a href="{{ url_for('interview.setup') }}" class="btn btn-primary" style="padding: 0.85rem 2rem; font-size: 1.1rem;">Start Another Practice Session</a>
+        <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-outline" style="padding: 0.85rem 2rem; font-size: 1.1rem;">Back to User Dashboard</a>
+    </div>
+</div>
+{% endblock %}

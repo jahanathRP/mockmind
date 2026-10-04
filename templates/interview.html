@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 850px; margin: 2rem auto;">
+    <!-- Progress Indicator -->
+    <div style="margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-weight: 700; color: var(--dark-color);">
+                Question {{ current_q }} of {{ total_q }}
+            </span>
+            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">
+                {{ ((current_q / total_q) * 100)|round|int }}% Completed
+            </span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill progress-fill-primary" style="width: {{ (current_q / total_q) * 100 }}%;"></div>
+        </div>
+    </div>
+
+    <div class="card card-elevated">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #E5E7EB;">
+            <div>
+                <span class="badge badge-category">{{ question.category }}</span>
+                {% if question.topic %}
+                <span class="badge" style="background: #F3F4F6; color: #4B5563; margin-left: 0.5rem;">{{ question.topic }}</span>
+                {% endif %}
+            </div>
+            <div>
+                <span class="badge" style="background: {% if question.difficulty == 'Hard' %}#FEE2E2; color: #991B1B;{% elif question.difficulty == 'Medium' %}#FEF3C7; color: #92400E;{% else %}#DEF7EC; color: #03543F;{% endif %} font-weight: 700;">
+                    {{ question.difficulty }} Level
+                </span>
+            </div>
+        </div>
+
+        <div class="question-box" style="background: #F8FAFC; border-left: 4px solid var(--primary-color); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.75rem;">
+            <h2 style="font-size: 1.35rem; color: var(--dark-color); line-height: 1.4;">{{ question.question }}</h2>
+        </div>
+
+        <form id="interview-form" method="POST" action="{{ url_for('interview.start_interview') }}">
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <label for="answer" class="form-label" style="margin-bottom: 0;">Your Answer</label>
+                    <span id="word-count-display" class="word-counter">0 words | 0 chars</span>
+                </div>
+                <textarea 
+                    id="answer" 
+                    name="answer" 
+                    class="form-control" 
+                    placeholder="Type your response thoroughly. Explain definitions, key mechanisms, and examples where applicable..." 
+                    style="min-height: 220px;"
+                    autofocus></textarea>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                    <small style="color: var(--text-muted);">
+                        Tip: Clear structure and domain-specific terminology improve evaluation accuracy.
+                    </small>
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; pt-4; border-top: 1px solid #E5E7EB; padding-top: 1.5rem;">
+                <button type="submit" name="action" value="skip" class="btn btn-muted btn-sm" onclick="return confirm('Are you sure you want to skip this question?');">
+                    Skip Question
+                </button>
+                
+                <button type="submit" id="submit-btn" name="action" value="submit" class="btn btn-primary" style="min-width: 200px;">
+                    {% if current_q == total_q %}
+                        Submit & Finish Interview
+                    {% else %}
+                        Submit & Next Question →
+                    {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Live word and character counter
+    const textarea = document.getElementById('answer');
+    const wordDisplay = document.getElementById('word-count-display');
+    const form = document.getElementById('interview-form');
+    const submitBtn = document.getElementById('submit-btn');
+
+    if (textarea && wordDisplay) {
+        textarea.addEventListener('input', function() {
+            const text = this.value.trim();
+            const words = text ? text.split(/\s+/).length : 0;
+            const chars = this.value.length;
+            wordDisplay.textContent = `${words} word${words === 1 ? '' : 's'} | ${chars} char${chars === 1 ? '' : 's'}`;
+        });
+    }
+
+    // Protect against accidental double submission
+    if (form && submitBtn) {
+        form.addEventListener('submit', function(e) {
+            const activeAction = document.activeElement ? document.activeElement.value : 'submit';
+            if (activeAction === 'submit') {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = 'Submitting & Evaluating...';
+                // append a hidden input for action since disabled button won't submit its name/value
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'action';
+                hiddenInput.value = 'submit';
+                form.appendChild(hiddenInput);
+            }
+        });
+    }
+</script>
+{% endblock %}
